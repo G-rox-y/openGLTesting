@@ -18,10 +18,10 @@ add_subdirectory(submodules/glew-cmake)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC "submodules/glfw/include"
-    PUBLIC "submodules/glew-cmake/include"
-    PUBLIC ${PROJECT_BINARY_DIR}
+target_include_directories(${PROJECT_NAME} PUBLIC
+    "submodules/glfw/include"
+    "submodules/glew-cmake/include"
+    ${PROJECT_BINARY_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} "glfw;libglew_static")
