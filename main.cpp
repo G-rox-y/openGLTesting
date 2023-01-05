@@ -2,8 +2,39 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 
 //----------------------------------------------------------
+struct ShaderSource{
+    std::string VertexSource;
+    std::string FragmentSource;
+};
+
+static ShaderSource ParseShader(const std::string &filepath){
+    std::ifstream data(filepath);
+    std::string line;
+    std::stringstream ss[2];
+    enum class ShaderType{
+        NONE = -1, VERTEX = 0, FRAGMENT = 1
+    };
+    ShaderType shader = ShaderType::NONE;
+
+    while(getline(data, line)){
+        if(line.find("#shader") != std::string::npos){
+            if (line.find("vertex") != std::string::npos)
+                shader = ShaderType::VERTEX;
+            else if (line.find("fragment") != std::string::npos)
+                shader = ShaderType::FRAGMENT;
+        }
+        else{
+            ss[(int)shader] << line << "\n";
+        }
+    }
+
+    return {ss[0].str(), ss[1].str()};
+}
 
 static unsigned int CompileShader(unsigned int type, const std::string& source){
     unsigned int id = glCreateShader(type);
@@ -79,40 +110,35 @@ int main(void)
     }
     
     //triangle data
-    float coords[6] = {
-        -0.5f, -0.5f, 0.0f, 0.5f, 0.5f, -0.5f
+    float coords[8] = {
+        -0.5f, -0.5f, 
+        0.5f, -0.5f,
+        0.5f, 0.5f,
+        -0.5f, 0.5f
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
     };
 
     unsigned int buffer; //openGL stores the buffer index in this int
     glGenBuffers(1, &buffer); //generate the buffer and save its index in buffer
     glBindBuffer(GL_ARRAY_BUFFER, buffer); //here GL sets the buffer as the data that further operations will be done on
-    glBufferData(GL_ARRAY_BUFFER, sizeof(coords[0])*6, coords, GL_STATIC_DRAW); //pass data to buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(coords[0])*4*2, coords, GL_STATIC_DRAW); //pass data to buffer
+    
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(coords[0])*2, (const void*)0); //explaining the data in the buffer
     glEnableVertexAttribArray(0); // it has to be enabled manualy for some reason
 
-std::string vertexShader = 
-R"glsl(
-#version 330 core
 
-layout(location = 0) in vec4 position;
+    unsigned int ibo; //index buffer object
+    glGenBuffers(1, &ibo); //generate the ibo address
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); //do shit here
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0])*3*2, indices, GL_STATIC_DRAW); //pass data to the shit
 
-void main(){
-    gl_Position = position;
-}
-)glsl";
 
-std::string fragmentShader = 
-R"glsl(
-#version 330 core
-
-layout(location = 0) out vec4 color;
-
-void main(){
-    color = vec4(1.0, 0.0, 0.0, 1.0);
-}
-)glsl";
-
-    unsigned int shader = CreateShader(vertexShader, fragmentShader);
+    ShaderSource source = ParseShader("resources/shaders/shader.glsl");
+    unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
 
     // Loop until the user closes the window 
@@ -121,7 +147,7 @@ void main(){
         // Render here 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Swap front and back buffers 
         glfwSwapBuffers(window);
