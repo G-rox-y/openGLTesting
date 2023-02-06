@@ -5,12 +5,15 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <cmath>
 
 //----------------------------------------------------------
 struct ShaderSource{
     std::string VertexSource;
     std::string FragmentSource;
 };
+
+const float PI = 3.14159265;
 
 static ShaderSource ParseShader(const std::string &filepath){
     std::ifstream data(filepath);
@@ -110,36 +113,49 @@ int main(void)
     }
     
     //triangle data
-    float coords[8] = {
-        -0.5f, -0.5f, 
-        0.5f, -0.5f,
-        0.5f, 0.5f,
-        -0.5f, 0.5f
+    float coords[] = {
+        0.0f, 1.0f, 
+        (float)cos(18.f * PI/180.f), (float)sin(18.f * PI/180.f),
+        (float) cos(54 * PI/180.f), (float) -sin(54 * PI/180.f),
+        (float) -cos(54 * PI/180.f), (float) -sin(54 * PI/180.f),
+        (float) -cos(18 * PI/180.f), (float) sin(18 * PI/180.f),
+        (float) cos(54 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f), (float) sin(54 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f),
+        (float) cos(18 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f), (float) -sin(18 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f)
     };
 
     unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0
+        0, 3, 6,
+        2, 4, 5,
+        1, 5, 6,
     };
 
+    unsigned int vao;
+    glGenVertexArrays(1, &vao); //create a vertex array object
+    glBindVertexArray(vao); //bind the vertex array object to be currently active
+    
     unsigned int buffer; //openGL stores the buffer index in this int
-    glGenBuffers(1, &buffer); //generate the buffer and save its index in buffer
+    glGenBuffers(1, &buffer); //generate the buffer and save its index in &buffer
     glBindBuffer(GL_ARRAY_BUFFER, buffer); //here GL sets the buffer as the data that further operations will be done on
-    glBufferData(GL_ARRAY_BUFFER, sizeof(coords[0])*4*2, coords, GL_STATIC_DRAW); //pass data to buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(coords[0])*7*2, coords, GL_STATIC_DRAW); //pass data to buffer
     
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(coords[0])*2, (const void*)0); //explaining the data in the buffer
+    // ^ works as following: location 0 of VAO (currently bound vertex array) will be filled with 2 pairs of floats
+    // without normalisation, each pair will have size of two sizeof(coords[0])
+    // and gpu should search for them at the offset of 0 from the currently bound GL_ARRAY_BUFFER
     glEnableVertexAttribArray(0); // it has to be enabled manualy for some reason
 
 
     unsigned int ibo; //index buffer object
     glGenBuffers(1, &ibo); //generate the ibo address
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); //do shit here
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0])*3*2, indices, GL_STATIC_DRAW); //pass data to the shit
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0])*3*3, indices, GL_STATIC_DRAW); //pass data to the shit
 
 
     ShaderSource source = ParseShader("resources/shaders/shader.glsl");
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
-    glUseProgram(shader);
+
+    int location = glGetUniformLocation(shader, "u_color");
+    if (location == -1) std::cout << "eh, it doesnt exist" << std::endl;
 
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window))
@@ -147,7 +163,17 @@ int main(void)
         // Render here 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        //activate shader
+        glUseProgram(shader);     
+        //set the color of the fragment shader (uniform) you could animate this if ya wanted   
+        glUniform4f(location, 1.f, 1.f, 0.f, 1.f);
+
+        //bind vertex array, this binds the buffer since the vertexattribpointer call linked buffer data with the vao
+        glBindVertexArray(vao);
+        //this binds the ibo
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
 
         // Swap front and back buffers 
         glfwSwapBuffers(window);
