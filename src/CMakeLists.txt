@@ -1,0 +1,9 @@
+add_executable(${PROJECT_NAME} 
+    main.cpp
+    glStuff/Renderer.cpp
+    glStuff/IndexBuffer.cpp
+    glStuff/VertexBuffer.cpp
+    glStuff/VertexArray.cpp
+    glStuff/VertexBufferLayout.cpp
+    glStuff/Shader.cpp
+)
