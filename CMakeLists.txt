@@ -19,7 +19,15 @@ add_subdirectory(submodules/glew-cmake)
 add_subdirectory(submodules/glm)
 add_subdirectory(submodules/soil2)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} 
+    main.cpp
+    Renderer.cpp
+    IndexBuffer.cpp
+    VertexBuffer.cpp
+    VertexArray.cpp
+    VertexBufferLayout.cpp
+    Shader.cpp
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     "submodules/glfw/include"
