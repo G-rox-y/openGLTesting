@@ -2,15 +2,13 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
 #include <cmath>
 
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexArray.hpp"
 #include "Shader.hpp"
+#include "Renderer.hpp"
 
 //----------------------------------------------------------
 
@@ -27,8 +25,7 @@ int main(void)
 
     // Create a windowed mode window and its OpenGL context 
     window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
-    {
+    if (!window){
         glfwTerminate();
         return -1;
     }
@@ -58,7 +55,6 @@ int main(void)
         (float) cos(54 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f), (float) sin(54 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f),
         (float) cos(18 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f), (float) -sin(18 * PI/180.f) * sin(18 * PI/180.f) / sin(126 * PI/180.f)
     };
-
     unsigned int indices[] = {
         0, 3, 6,
         2, 4, 5,
@@ -77,25 +73,21 @@ int main(void)
     //create index buffer from data
     IndexBuffer ib(indices, 9);
 
+    //create shader and renderer
     Shader shader("resources/shaders/shader.glsl");
+    Renderer renderer;
 
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window))
     {
-        // Render here 
-        glClear(GL_COLOR_BUFFER_BIT);
+        //clear back buffer
+        renderer.Clear();
 
-        //activate shader
-        shader.Bind();
-
-        //set the color of the fragment shader (uniform) you could animate this if ya wanted   
+        //set the color of the fragment shader (uniform) you could animate this if ya wanted
         shader.SetUniform4f("u_color", 1.f, 1.f, 0.f, 1.f);
 
-        //bind vertex array, this binds the buffer since the vertexattribpointer call linked buffer data with the va
-        va.Bind();
-        ib.Bind();
-
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
+        //draw the va data, with the ib layout using the shader
+        renderer.Draw(va, ib, shader);
 
         // Swap front and back buffers 
         glfwSwapBuffers(window);

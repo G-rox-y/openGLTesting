@@ -3,7 +3,7 @@
 class IndexBuffer{
 private:
     unsigned int m_RendererID;
-    unsigned int m_Count;
+    unsigned int m_Count;   // number of points in the buffer (not pairs or triplets but singular datapoints)
 public:
     IndexBuffer(const void* data, unsigned int count);
     ~IndexBuffer();
