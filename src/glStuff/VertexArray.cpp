@@ -24,12 +24,12 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
     for(int i = 0; i < elements.size(); i++){
         const auto& element = elements[i];
 
-        glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)0);
+        glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset);
         // ^ explaining the data in the buffer
         // works as following: location 0 of VAO (currently bound vertex array) will be filled with 2 pairs of floats
         // without normalisation, each pair will have size of two sizeof(coords[0])
         // and gpu should search for them at the offset of 0 from the currently bound GL_ARRAY_BUFFER
-        glEnableVertexAttribArray(0); // it has to be enabled manualy for some reason
+        glEnableVertexAttribArray(i); // it has to be enabled manualy for some reason
 
         offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
     }

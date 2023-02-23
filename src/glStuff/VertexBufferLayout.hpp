@@ -34,8 +34,8 @@ private:
     std::vector<VertexBufferElement> m_Elements;
     unsigned int m_Stride;
 public:
-    VertexBufferLayout();
-    ~VertexBufferLayout();
+    VertexBufferLayout() : m_Stride(0){};
+    ~VertexBufferLayout(){};
 
     void Push(unsigned int type, unsigned int count){
         bool norm = VertexBufferElement::GetNormalizationOfType(type);
