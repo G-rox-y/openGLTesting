@@ -27,6 +27,14 @@ add_executable(${PROJECT_NAME}
     src/glStuff/VertexArray.cpp
     src/glStuff/Shader.cpp
     src/glStuff/Texture.cpp
+    #now the IMGUI since they dont have their own CMake
+    submodules/imgui_docking/imgui.cpp
+    submodules/imgui_docking/imgui_draw.cpp
+    submodules/imgui_docking/imgui_demo.cpp # this one isnt necesarry
+    submodules/imgui_docking/imgui_tables.cpp
+    submodules/imgui_docking/imgui_widgets.cpp
+    submodules/imgui_docking/backends/imgui_impl_glfw.cpp
+    submodules/imgui_docking/backends/imgui_impl_opengl3.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -34,6 +42,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     "submodules/glew-cmake/include"
     "submodules/glm"
     "submodules/soil2/src"
+    "submodules/imgui_docking"
+    "submodules/imgui_docking/backends"
     "src"
     "src/glStuff"
     ${PROJECT_BINARY_DIR}

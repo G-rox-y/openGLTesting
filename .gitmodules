@@ -10,3 +10,7 @@
 [submodule "submodules/soil2"]
 	path = submodules/soil2
 	url = https://github.com/SpartanJ/SOIL2
+[submodule "submodules/imgui_docking"]
+	path = submodules/imgui_docking
+	url = https://github.com/ocornut/imgui
+	branch = docking

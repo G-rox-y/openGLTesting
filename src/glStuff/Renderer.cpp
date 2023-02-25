@@ -21,3 +21,7 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
     va.Unbind();
     ib.Unbind();
 }
+
+void Renderer::Resize(const int& width, const int& height){
+    glViewport(0, 0, width, height);
+}
