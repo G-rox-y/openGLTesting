@@ -84,10 +84,10 @@ int main(void){
 
     //triangle data
     float coords[] = {
-        200.0f, 200.0f, 0.0f, 0.0f,
-        200.0f, 100.0f, 0.0f, 1.0f,
-        100.0f, 100.0f, 1.0f, 1.0f,
-        100.0f, 200.0f, 1.0f, 0.0f,
+        50.0f, 50.0f, 0.0f, 0.0f,
+        50.0f, -50.0f, 0.0f, 1.0f,
+        -50.0f, -50.0f, 1.0f, 1.0f,
+        -50.0f, 50.0f, 1.0f, 0.0f,
     };
     unsigned int indices[] = {
         0, 1, 2,
@@ -126,21 +126,16 @@ int main(void){
     glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
     // ^ create orthographic projection matrix that creates a 2D image from everything within the
     // X coordinates from -2 to 2, Y from -1.5 to 1.5, and Z from -1 to 1
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0)); // translate view matrix (I) 100 to left
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)); // translate view matrix (I) 100 to left
 
-    glm::vec3 translation(200, 200, 0);
+    glm::vec3 translationA(200, 200, 0);
+    glm::vec3 translationB(400, 200, 0);
 
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window)){
         //clear back buffer
         renderer.Clear();
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), translation); // translate model matrix (I)
-        glm::mat4 mvp = proj * view * model; // create MVP matrix
-        
-        shader.SetUniformMat4f("u_MVP", mvp);
-        //set the color of the fragment shader (uniform) you could animate this if ya wanted
-        shader.SetUniform4f("u_Color", 1.f, 1.f, 0.f, 1.f);
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -151,7 +146,8 @@ int main(void){
         // ImGui::ShowDemoWindow();
 
         {
-            ImGui::SliderFloat3("Translation", &translation.x, 0.f, 960.f);
+            ImGui::SliderFloat3("Translation A", &translationA.x, 0.f, 960.f);
+            ImGui::SliderFloat3("Translation B", &translationB.x, 0.f, 960.f);
         }
 
         //render imgui window()
@@ -175,8 +171,22 @@ int main(void){
             glfwGetFramebufferSize(window, &display_w, &display_h);
             renderer.Resize(display_w, display_h);
         }
-        //draw the va data, with the ib layout using the shader
-        renderer.Draw(va, ib, shader);
+
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA); // translate model matrix (I)
+            glm::mat4 mvp = proj * view * model; // create MVP matrix
+            shader.SetUniformMat4f("u_MVP", mvp);
+            //draw the va data, with the ib layout using the shader
+            renderer.Draw(va, ib, shader);
+        }
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+            glm::mat4 mvp = proj * view * model;
+            shader.SetUniformMat4f("u_MVP", mvp);
+            renderer.Draw(va, ib, shader);
+        }
+
+
 
         // Swap front and back buffers 
         glfwSwapBuffers(window);
