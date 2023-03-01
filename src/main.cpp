@@ -26,22 +26,17 @@ int main(void){
     std::cout << "GLM version: " << GLM_VERSION_MAJOR <<'.'<< GLM_VERSION_MINOR <<'.'<< GLM_VERSION_REVISION << std::endl;
     std::cout << "IMGUI version: " << IMGUI_VERSION << std::endl;
 
-    //create window object
     GLFWwindow* window;
 
-    // Initialize the library 
     if (!glfwInit())
         return -1;
 
-
-    // Create a windowed mode window and its OpenGL context 
     window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
     if (!window){
         glfwTerminate();
         return -1;
     }
 
-    // Make the window's context current 
     glfwMakeContextCurrent(window);
 
     //add modern openGL
@@ -133,9 +128,20 @@ int main(void){
 
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window)){
-        //clear back buffer
         renderer.Clear();
 
+        { //draw our 2 objects
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA); // translate model matrix (I)
+            glm::mat4 mvp = proj * view * model; // create MVP matrix
+            shader.SetUniformMat4f("u_MVP", mvp);
+            //draw the va data, with the ib layout using the shader
+            renderer.Draw(va, ib, shader);
+        }{
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+            glm::mat4 mvp = proj * view * model;
+            shader.SetUniformMat4f("u_MVP", mvp);
+            renderer.Draw(va, ib, shader);
+        }
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -172,30 +178,10 @@ int main(void){
             renderer.Resize(display_w, display_h);
         }
 
-        {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA); // translate model matrix (I)
-            glm::mat4 mvp = proj * view * model; // create MVP matrix
-            shader.SetUniformMat4f("u_MVP", mvp);
-            //draw the va data, with the ib layout using the shader
-            renderer.Draw(va, ib, shader);
-        }
-        {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
-            glm::mat4 mvp = proj * view * model;
-            shader.SetUniformMat4f("u_MVP", mvp);
-            renderer.Draw(va, ib, shader);
-        }
-
-
-
-        // Swap front and back buffers 
-        glfwSwapBuffers(window);
-
-        // Poll for and process events 
+        glfwSwapBuffers(window); 
         glfwPollEvents();
     }
 
-    // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
