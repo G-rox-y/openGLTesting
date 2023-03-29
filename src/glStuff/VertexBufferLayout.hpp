@@ -3,12 +3,14 @@
 #include <GL/glew.h>
 #include <vector>
 
-struct VertexBufferElement{
+struct VertexBufferElement
+{
     unsigned int type;
     unsigned int count;
     unsigned int normalized; //(bool)
 
-    static unsigned int GetSizeOfType(unsigned int type){
+    static unsigned int GetSizeOfType(unsigned int type)
+    {
         switch (type){
             case GL_FLOAT: return 4;
             case GL_UNSIGNED_INT: return 4;
@@ -18,7 +20,8 @@ struct VertexBufferElement{
         return 0;
     }
 
-    static unsigned int GetNormalizationOfType(unsigned int type){
+    static unsigned int GetNormalizationOfType(unsigned int type)
+    {
         switch (type){
             case GL_FLOAT: return 0;
             case GL_UNSIGNED_INT: return 0;
@@ -29,7 +32,8 @@ struct VertexBufferElement{
     }
 };
 
-class VertexBufferLayout{
+class VertexBufferLayout
+{
 private:
     std::vector<VertexBufferElement> m_Elements;
     unsigned int m_Stride;
@@ -37,7 +41,8 @@ public:
     VertexBufferLayout() : m_Stride(0){};
     ~VertexBufferLayout(){};
 
-    void Push(unsigned int type, unsigned int count){
+    void Push(unsigned int type, unsigned int count)
+    {
         bool norm = VertexBufferElement::GetNormalizationOfType(type);
         VertexBufferElement v = {type, count, norm};
         m_Elements.emplace_back(v);

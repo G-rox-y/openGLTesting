@@ -24,15 +24,18 @@ Texture::Texture(const std::string& filepath)
     else std::cout << "Failed to load img" << std::endl;
 }
 
-Texture::~Texture(){
+Texture::~Texture()
+{
     glDeleteTextures(1, &m_RendererID);
 }
 
-void Texture::Bind(unsigned int slot/*=0*/) const {
+void Texture::Bind(unsigned int slot/*=0*/) const
+{
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, m_RendererID);
 }
 
-void Texture::Unbind() const {
+void Texture::Unbind() const
+{
     glBindTexture(GL_TEXTURE_2D, 0);
 }

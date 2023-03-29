@@ -1,21 +1,26 @@
 #include "VertexArray.hpp"
 
-VertexArray::VertexArray(){
+VertexArray::VertexArray()
+{
     glGenVertexArrays(1, &m_RendererID);
 }
-VertexArray::~VertexArray(){
+VertexArray::~VertexArray()
+{
     glDeleteVertexArrays(1, &m_RendererID);
 }
 
-void VertexArray::Bind() const{
+void VertexArray::Bind() const
+{
     glBindVertexArray(m_RendererID);
 }
 
-void VertexArray::Unbind() const{
+void VertexArray::Unbind() const
+{
     glBindVertexArray(0);
 }
 
-void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout){
+void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
+{
     this->Bind();
     vb.Bind();
     

@@ -11,27 +11,26 @@
 #include <iostream>
 #include <cmath>
 
-#include "glStuff/Texture.hpp"
 #include "glStuff/Renderer.hpp"
+
+#include "tests/ClearColor.hpp"
+#include "tests/Rectangle.hpp"
+#include "tests/Texture2D.hpp"
 
 //----------------------------------------------------------
 
 const float PI = 3.14159265;
 
-int main(void){
-    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-    std::cout << "GLFW version: " << GLFW_VERSION_MAJOR <<'.'<< GLFW_VERSION_MINOR <<'.'<< GLFW_VERSION_REVISION << std::endl;
-    std::cout << "GLEW version: " << GLEW_VERSION_MAJOR <<'.'<< GLEW_VERSION_MINOR <<'.'<< GLEW_VERSION_MICRO << std::endl;
-    std::cout << "SOIL2 version: " << SOIL_MAJOR_VERSION <<'.'<< SOIL_MINOR_VERSION <<'.'<< SOIL_PATCH_LEVEL << std::endl;
-    std::cout << "GLM version: " << GLM_VERSION_MAJOR <<'.'<< GLM_VERSION_MINOR <<'.'<< GLM_VERSION_REVISION << std::endl;
-    std::cout << "IMGUI version: " << IMGUI_VERSION << std::endl;
+int main(void)
+{
+    int display_w=960, display_h=540;
 
     GLFWwindow* window;
 
     if (!glfwInit())
         return -1;
 
-    window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(display_w, display_h, "Hello World", NULL, NULL);
     if (!window){
         glfwTerminate();
         return -1;
@@ -39,7 +38,7 @@ int main(void){
 
     glfwMakeContextCurrent(window);
 
-    //add modern openGL
+    //add modern OpenGL
     const GLenum err = glewInit();
     if (err != GLEW_OK){
         std::cout << "GLEW init error: " << glewGetErrorString(err) << std::endl;
@@ -47,7 +46,13 @@ int main(void){
         return -1;
     }
 
-    // Setup Dear ImGui context
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "GLFW version: " << GLFW_VERSION_MAJOR <<'.'<< GLFW_VERSION_MINOR <<'.'<< GLFW_VERSION_REVISION << std::endl;
+    std::cout << "GLEW version: " << GLEW_VERSION_MAJOR <<'.'<< GLEW_VERSION_MINOR <<'.'<< GLEW_VERSION_MICRO << std::endl;
+    std::cout << "SOIL2 version: " << SOIL_MAJOR_VERSION <<'.'<< SOIL_MINOR_VERSION <<'.'<< SOIL_PATCH_LEVEL << std::endl;
+    std::cout << "GLM version: " << GLM_VERSION_MAJOR <<'.'<< GLM_VERSION_MINOR <<'.'<< GLM_VERSION_REVISION << std::endl;
+    std::cout << "IMGUI version: " << IMGUI_VERSION << std::endl;
+
     IMGUI_CHECKVERSION(); // check that version is compatible with what u using it for
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -58,7 +63,6 @@ int main(void){
     // io.ConfigViewportsNoAutoMerge = true;
     // io.ConfigViewportsNoTaskBarIcon = true;
 
-    // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     // ImGui::StyleColorsLight();
 
@@ -74,106 +78,53 @@ int main(void){
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330"); //glsl version
 
+    Renderer renderer(display_w, display_h);
 
-    //setup done, now onto the actual program
+    //open test framework
+    test::Test* currentTest = nullptr;
+    test::TestMenu* testMenu = new test::TestMenu(currentTest);
+    currentTest = testMenu;
 
-    //triangle data
-    float coords[] = {
-        50.0f, 50.0f, 0.0f, 0.0f,
-        50.0f, -50.0f, 0.0f, 1.0f,
-        -50.0f, -50.0f, 1.0f, 1.0f,
-        -50.0f, 50.0f, 1.0f, 0.0f,
-    };
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0,
-    };
+    //run test
+    testMenu->RegisterTest<test::ClearColor>("Clear Color");
+    testMenu->RegisterTest<test::Rectangle>("Rectangle", renderer);
+    testMenu->RegisterTest<test::Texture2D>("Texture2D", renderer, display_w, display_h);
 
-    //enable blending and set it
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    //create vertex array
-    VertexArray va;
-
-    //create vertex buffer from data and add it to the vertex array
-    VertexBuffer vb(coords, sizeof(coords[0])*4*4);
-    VertexBufferLayout layout;
-    layout.Push(GL_FLOAT, 2);
-    layout.Push(GL_FLOAT, 2);
-    va.AddBuffer(vb, layout);
-
-    //create index buffer from data
-    IndexBuffer ib(indices, 6);
-
-    //create renderer
-    Renderer renderer;
-
-    //create shader
-    Shader shader("resources/shaders/shader.glsl");
-
-    //add texture to shader
-    Texture texture("resources/images/srce.png");
-    texture.Bind(0); // bind texture to slot 0
-    shader.SetUniform1i("u_Texture", 0); // create uniform that says what slot the texture is in
-
-    //add model-view-projection matrix to shader
-    glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-    // ^ create orthographic projection matrix that creates a 2D image from everything within the
-    // X coordinates from -2 to 2, Y from -1.5 to 1.5, and Z from -1 to 1
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)); // translate view matrix (I) 100 to left
-
-    glm::vec3 translationA(200, 200, 0);
-    glm::vec3 translationB(400, 200, 0);
-
-    // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window)){
         renderer.Clear();
-
-        { //draw our 2 objects
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA); // translate model matrix (I)
-            glm::mat4 mvp = proj * view * model; // create MVP matrix
-            shader.SetUniformMat4f("u_MVP", mvp);
-            //draw the va data, with the ib layout using the shader
-            renderer.Draw(va, ib, shader);
-        }{
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
-            glm::mat4 mvp = proj * view * model;
-            shader.SetUniformMat4f("u_MVP", mvp);
-            renderer.Draw(va, ib, shader);
-        }
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // show imgui window(s)
-        // ImGui::ShowDemoWindow();
-
-        {
-            ImGui::SliderFloat3("Translation A", &translationA.x, 0.f, 960.f);
-            ImGui::SliderFloat3("Translation B", &translationB.x, 0.f, 960.f);
+        if (currentTest){
+            currentTest->OnUpdate(0.0f);
+            currentTest->OnRender();
+            ImGui::Begin("Test");
+            if (currentTest != testMenu && ImGui::Button("<-")){
+                delete currentTest;
+                currentTest = testMenu;
+            }
+            currentTest->OnImguiRender();
+            ImGui::End();
         }
 
-        //render imgui window()
+        // ImGui::ShowDemoWindow();
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // Update and Render additional Platform Windows
-        // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-        // For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
+
+        // Update and Render additional Platform Windows (imgui docking thing)
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable){
             GLFWwindow* backup_current_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
         
-
         { //handle window resizing
-            int display_w, display_h;
             glfwGetFramebufferSize(window, &display_w, &display_h);
             renderer.Resize(display_w, display_h);
         }
@@ -181,6 +132,10 @@ int main(void){
         glfwSwapBuffers(window); 
         glfwPollEvents();
     }
+
+    delete currentTest;
+    if (currentTest != testMenu)
+        delete testMenu;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

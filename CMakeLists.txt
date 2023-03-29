@@ -4,7 +4,7 @@ if(NOT EXISTS "./build")
     file(MAKE_DIRECTORY "build")
 endif()
 
-project("OpenGLTutorial")
+project("OpenGLTesting")
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)
@@ -27,6 +27,11 @@ add_executable(${PROJECT_NAME}
     src/glStuff/VertexArray.cpp
     src/glStuff/Shader.cpp
     src/glStuff/Texture.cpp
+    #tester programs
+    src/tests/Test.cpp
+    src/tests/ClearColor.cpp
+    src/tests/Rectangle.cpp
+    src/tests/Texture2D.cpp
     #now the IMGUI since they dont have their own CMake
     submodules/imgui_docking/imgui.cpp
     submodules/imgui_docking/imgui_draw.cpp
@@ -46,6 +51,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     "submodules/imgui_docking/backends"
     "src"
     "src/glStuff"
+    "src/tests"
     ${PROJECT_BINARY_DIR}
 )
 

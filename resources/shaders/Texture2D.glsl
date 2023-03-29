@@ -8,7 +8,8 @@ out vec2 v_TexCoord;
 
 uniform mat4 u_MVP;
 
-void main(){
+void main()
+{
     gl_Position = u_MVP * position;
     v_TexCoord = texCoord;
 };
@@ -23,7 +24,8 @@ in vec2 v_TexCoord;
 
 uniform sampler2D u_Texture;
 
-void main(){
+void main()
+{
     vec4 texColor = texture(u_Texture, v_TexCoord);
     color = texColor;
 };

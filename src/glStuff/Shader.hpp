@@ -4,12 +4,14 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 
-struct ShaderProgramSource{
+struct ShaderProgramSource
+{
     std::string VertexSource;
     std::string FragmentSource;
 };
 
-class Shader{
+class Shader
+{
 private:
     unsigned int m_RendererID;
     std::string m_FilePath;

@@ -3,7 +3,8 @@
 #include "VertexBuffer.hpp"
 #include "VertexBufferLayout.hpp"
 
-class VertexArray{
+class VertexArray
+{
 private:
     unsigned int m_RendererID;
 public:

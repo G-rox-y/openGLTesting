@@ -1,13 +1,21 @@
 #include "Renderer.hpp"
 
 Renderer::Renderer(){}
-Renderer::~Renderer(){}
 
-void Renderer::Clear() const {
+Renderer::Renderer(int W, int H)
+: display_w(W), display_h(H)
+{}
+
+Renderer::~Renderer()
+{}
+
+void Renderer::Clear() const
+{
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const {
+void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const
+{
     shader.Bind();
     va.Bind();
     ib.Bind();
@@ -22,6 +30,7 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
     ib.Unbind();
 }
 
-void Renderer::Resize(const int& width, const int& height){
+void Renderer::Resize(const int& width, const int& height)
+{
     glViewport(0, 0, width, height);
 }
