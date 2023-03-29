@@ -1,7 +1,6 @@
 #include "Texture2D.hpp"
 
 #include "imgui.h"
-#include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace test
@@ -10,7 +9,6 @@ namespace test
     : m_translationA(200, 200, 0), m_translationB(400, 200, 0), shader("resources/shaders/Texture2D.glsl"),
       texture("resources/images/Texture2D_texture.png"), renderer(renderer)
     {
-        std::cout << display_w << " " << display_h << std::endl;
         //triangle data
         float coords[] = {
             50.0f, 50.0f, 0.0f, 0.0f, //rectangle x, rectangle y, texture x, texture y
