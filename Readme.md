@@ -7,7 +7,7 @@ This is a repository containing my personal OpenGL and Imgui tests.
 
 CMake (major version 3)
 
-This had been build on a Windows machine, so be aware that other operating systems may have some bugs, if you find them, create an issue
+This had been built on a Windows machine, so be aware that other operating systems may have some bugs, if you find them, create an issue
 
 ### Building
 
